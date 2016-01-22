@@ -179,7 +179,6 @@ public class User implements Serializable {
     public int hashCode() {
 	final int prime = 31;
 	int result = 1;
-	result = prime * result + ((bands == null) ? 0 : bands.hashCode());
 	result = prime * result
 		+ ((birtDate == null) ? 0 : birtDate.hashCode());
 	result = prime * result
@@ -208,11 +207,6 @@ public class User implements Serializable {
 	if (getClass() != obj.getClass())
 	    return false;
 	User other = (User) obj;
-	if (bands == null) {
-	    if (other.bands != null)
-		return false;
-	} else if (!bands.equals(other.bands))
-	    return false;
 	if (birtDate == null) {
 	    if (other.birtDate != null)
 		return false;

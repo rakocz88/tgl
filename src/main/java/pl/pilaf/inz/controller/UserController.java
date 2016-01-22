@@ -42,7 +42,7 @@ public class UserController {
 	    new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 	};
 	List<Band> userBands = new ArrayList<>();
-	Consumer<Long> bandLambda = (Long bandId) -> (userBands.add(bandRepository.findOne(bandId)));
+	Consumer<Long> bandLambda = (Long bandId) -> userBands.add(bandRepository.findOne(bandId));
 	user.getBands().stream().parallel().forEach(bandLambda);
 	User userEntity = new User(user);
 	userEntity.setBands(userBands);
@@ -59,7 +59,7 @@ public class UserController {
     public List<User> findAll() {
         final List<User> resultList = new ArrayList<>();
         final Iterable<User> all = userRepository.findAll();
-        Consumer<User> consLambda = (User user) -> (resultList.add(user));
+        Consumer<User> consLambda = (User user) -> resultList.add(user);
         all.forEach(consLambda);
         return resultList;
     }

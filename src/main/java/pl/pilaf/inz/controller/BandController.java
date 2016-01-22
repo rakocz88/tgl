@@ -1,58 +1,83 @@
 package pl.pilaf.inz.controller;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.beust.jcommander.internal.Lists;
-
+import pl.pilaf.inz.model.Album;
 import pl.pilaf.inz.model.Band;
-import pl.pilaf.inz.model.User;
 import pl.pilaf.inz.repository.BandRepository;
+import pl.pilaf.inz.wrapper.AlbumWrapper;
+import pl.pilaf.inz.wrapper.BandWrapper;
 
 @RestController
 @RequestMapping(value = "/band")
 public class BandController {
 
-    @Autowired
-    private BandRepository bandRepository;
-    
-    @Inject
-    private SessionBiz sessionBiz;
+	@Autowired
+	private BandRepository bandRepository;
 
-    @RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Band> findAll() {
-	final List<Band> resultList = new ArrayList<>();
-	final Iterable<Band> all = bandRepository.findAll();
-	Consumer<Band> consLambda = (Band band) -> (resultList.add(band));
-	all.forEach(consLambda);
-	return resultList;
-    }
+	@Inject
+	private SessionBiz sessionBiz;
 
-    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Band> findAllByName(@RequestParam String name) {
-	return bandRepository.findByName(name);
-    }
+	@RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<Band> findAll() {
+		final List<Band> resultList = new ArrayList<>();
+		final Iterable<Band> all = bandRepository.findAll();
+		Consumer<Band> consLambda = (Band band) -> resultList.add(band);
+		all.forEach(consLambda);
+		return resultList;
+	}
 
-    @RequestMapping(value = "/create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Band register(@RequestBody Band user) {
-	return bandRepository.save(user);
-    }
-    
-    @RequestMapping(value="byUser",method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Band> findAllForUser() {
-	return bandRepository.findByMembers(Arrays.asList(sessionBiz.getUser()));
-    }
+	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<Band> findAllByName(@RequestParam String name) {
+		return bandRepository.findByName(name);
+	}
+
+	@RequestMapping(value = "/create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public BandWrapper register(@RequestBody BandWrapper band) {
+		Band createdBand =  bandRepository.save(new Band(band));
+		return new BandWrapper(createdBand);
+	}
+
+	@RequestMapping(value = "byUser", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<BandWrapper> findAllForUser() {
+		List<Band> bandList = new ArrayList<>();
+		Consumer<Band> bandConsumer = (Band band) -> bandList.add(band);
+		Predicate<Band> bandPredicate = (Band band) -> band.getMembers().contains(sessionBiz.getUser());
+		Function<Band, BandWrapper> bandFunction = (Band band)->(new BandWrapper(band));
+		bandRepository.findAll().forEach(bandConsumer);
+		List<BandWrapper> responseList =  bandList.stream().filter(bandPredicate).map(bandFunction).collect(Collectors.toList());
+		return responseList;
+	}
+	
+	@RequestMapping(value="{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public BandWrapper findById(@PathVariable("id") Long id) {
+		return new BandWrapper(bandRepository.findOne(id));
+	}
+	
+	@RequestMapping(value = "{id}/albums", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<AlbumWrapper> findAllForBand(@PathVariable("id") Long id) {
+		Band band = bandRepository.findOne(id);
+		Function<Album, AlbumWrapper> albumFunction = (Album album)->(new AlbumWrapper(album));
+		List<AlbumWrapper> responseList =  band.getAlbums().stream().map(albumFunction).collect(Collectors.toList());
+		return responseList;
+	}
+	
+	
 
 }

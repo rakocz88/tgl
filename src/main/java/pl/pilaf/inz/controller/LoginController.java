@@ -21,28 +21,26 @@ import pl.pilaf.json.UserLoginJson;
 @RequestMapping(value = "/login")
 public class LoginController {
 
-    @Autowired
-    private UserRepository userRepository;
-    
-    @Inject
-    private SessionBiz sessionBiz;
+	@Autowired
+	private UserRepository userRepository;
 
-    @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> logIn(@RequestBody UserLoginJson user) {
-	if (sessionBiz.isLogedIn()){
-	    return new ResponseEntity<String>(HttpStatus.OK);
-	}
-	List<User> users = userRepository.findByLogin(user.getLogin());
-	if (users.size()!=1){
-	    return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
-	}
-	User valUser = users.get(0);
-	boolean loged = valUser.getPassword().equals(user.getPassword());
-	sessionBiz.setLogedIn(loged);
-	sessionBiz.setUser(valUser);
-	return (loged)? new ResponseEntity<String>(HttpStatus.OK): new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
-    }
+	@Inject
+	private SessionBiz sessionBiz;
 
-  
+	@RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> logIn(@RequestBody UserLoginJson user) {
+		// if (sessionBiz.isLogedIn()){
+		// return new ResponseEntity<String>(HttpStatus.OK);
+		// }
+		List<User> users = userRepository.findByLogin(user.getLogin());
+		if (users.size() != 1) {
+			return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+		}
+		User valUser = users.get(0);
+		boolean loged = valUser.getPassword().equals(user.getPassword());
+		sessionBiz.setLogedIn(loged);
+		sessionBiz.setUser(valUser);
+		return (loged) ? new ResponseEntity<String>(HttpStatus.OK) : new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+	}
 
 }
