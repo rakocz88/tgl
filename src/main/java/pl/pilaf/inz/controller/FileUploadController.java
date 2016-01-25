@@ -2,16 +2,23 @@ package pl.pilaf.inz.controller;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.websocket.server.PathParam;
 
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -77,10 +84,35 @@ public class FileUploadController {
 		File serverFile = new File(dir, fileName);
 		BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
 		stream.write(file.getBytes());
-		String songPath = folderPath.concat(fileName);
+		String songPath = folderPath.concat("\\").concat(fileName);
 		Song song = new Song(songName, songPath, band, album, songDescription);
 		songRepository.save(song);
 		stream.close();
 	}
+	
+	 @RequestMapping(value = "download/{songId}", method = RequestMethod.GET)
+	    public void download(@PathVariable ("songId") Long songId, final HttpServletRequest request, final HttpServletResponse response) {
+		 	
+		 	Song song = songRepository.findOne(songId);
+		 	
+	        File file = new File (song.getPath());
+	        try (InputStream fileInputStream = new FileInputStream(file);
+	                OutputStream output = response.getOutputStream();) {
+
+	            response.reset();
+
+	            response.setContentType("application/octet-stream");
+	            response.setContentLength((int) (file.length()));
+
+	            response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+
+	            IOUtils.copyLarge(fileInputStream, output);
+	            output.flush();
+	        } catch (IOException e) {
+	           e.printStackTrace();
+	        }
+
+	    }
+
 
 }

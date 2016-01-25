@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -38,12 +39,12 @@ public class Band implements Serializable {
 	@Size(max = 100)
 	private String createdPlace;
 
-	@ManyToMany(mappedBy = "bands")
+	@ManyToMany(mappedBy = "bands", fetch = FetchType.EAGER)
 	private List<User> members;
 
 	@Size(max = 100)
 	private String gengre;
-	
+
 	@OneToMany()
 	private List<Album> albums;
 
@@ -136,7 +137,6 @@ public class Band implements Serializable {
 	public void setGengre(String gengre) {
 		this.gengre = gengre;
 	}
-	
 
 	public List<Album> getAlbums() {
 		return albums;

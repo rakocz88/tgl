@@ -19,54 +19,64 @@ import pl.pilaf.inz.model.Band;
 import pl.pilaf.inz.model.User;
 import pl.pilaf.inz.repository.BandRepository;
 import pl.pilaf.inz.repository.UserRepository;
+import pl.pilaf.inz.wrapper.UserDetailsWrapper;
 import pl.pilaf.inz.wrapper.UserWrapper;
 
 @RestController
 @RequestMapping(value = "/user")
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private BandRepository bandRepository;
-    
-    public boolean loginExists(@RequestParam String login){
-	List<User> userList = userRepository.findByLogin(login);
-	return !userList.isEmpty();
-    }
-    
-    @RequestMapping(value = "/create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> register(@RequestBody UserWrapper user) {
-	if (loginExists(user.getLogin())){
-	    new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
-	};
-	List<Band> userBands = new ArrayList<>();
-	Consumer<Long> bandLambda = (Long bandId) -> userBands.add(bandRepository.findOne(bandId));
-	user.getBands().stream().parallel().forEach(bandLambda);
-	User userEntity = new User(user);
-	userEntity.setBands(userBands);
-	userEntity.setUserType(UserType.USER);
-        userRepository.save(userEntity);
-        for (Band band:userEntity.getBands()){
-            band.getMembers().add(userEntity);
-            bandRepository.save(band);
-        }
-        return new ResponseEntity<String>(HttpStatus.OK);
-    }
-    
-    @RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<User> findAll() {
-        final List<User> resultList = new ArrayList<>();
-        final Iterable<User> all = userRepository.findAll();
-        Consumer<User> consLambda = (User user) -> resultList.add(user);
-        all.forEach(consLambda);
-        return resultList;
-    }
-    
-    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<User> findAllByName(@RequestParam String name){
-	return userRepository.findByFirstName(name);
-    }
+	@Autowired
+	private UserRepository userRepository;
+
+	@Autowired
+	private BandRepository bandRepository;
+
+	@Autowired
+	private SessionBiz sessionBiz;
+
+	public boolean loginExists(@RequestParam String login) {
+		List<User> userList = userRepository.findByLogin(login);
+		return !userList.isEmpty();
+	}
+
+	@RequestMapping(value = "/create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> register(@RequestBody UserWrapper user) {
+		if (loginExists(user.getLogin())) {
+			new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+		}
+		;
+		List<Band> userBands = new ArrayList<>();
+		Consumer<Long> bandLambda = (Long bandId) -> userBands.add(bandRepository.findOne(bandId));
+		user.getBands().stream().parallel().forEach(bandLambda);
+		User userEntity = new User(user);
+		userEntity.setBands(userBands);
+		userEntity.setUserType(UserType.USER);
+		userRepository.save(userEntity);
+		for (Band band : userEntity.getBands()) {
+			band.getMembers().add(userEntity);
+			bandRepository.save(band);
+		}
+		return new ResponseEntity<String>(HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<User> findAll() {
+		final List<User> resultList = new ArrayList<>();
+		final Iterable<User> all = userRepository.findAll();
+		Consumer<User> consLambda = (User user) -> resultList.add(user);
+		all.forEach(consLambda);
+		return resultList;
+	}
+
+	@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<User> findAllByName(@RequestParam String name) {
+		return userRepository.findByFirstName(name);
+	}
+
+	@RequestMapping(value = "details", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public UserDetailsWrapper findUserDetails() {
+		return new UserDetailsWrapper(sessionBiz.getUser());
+	}
 
 }
