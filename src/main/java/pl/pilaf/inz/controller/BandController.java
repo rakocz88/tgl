@@ -89,6 +89,9 @@ public class BandController {
 	public void register(@RequestBody AddUserWrapper userBandWrapper) {
 		User user = userRepository.findOne(userBandWrapper.getUserId());
 		Band band = bandRepository.findOne(userBandWrapper.getGroupId());
+		if (band.getMembers().contains(user)) {
+			return;
+		}
 		band.getMembers().add(user);
 		bandRepository.save(band);
 		user.getBands().add(band);
@@ -98,5 +101,21 @@ public class BandController {
 
 		// return new BandWrapper(createdBand);
 	}
+
+	@RequestMapping(value = "filter", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<BandWrapper> filterBands(@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "gengre", required = false) String gengre) {
+
+		name = filterUndefined(name);
+		gengre = filterUndefined(gengre);
+
+		return bandRepository.filter(name, gengre).stream().map(bandWrapperFunction).collect(Collectors.toList());
+	}
+
+	public String filterUndefined(String filterString) {
+		return filterString.equals("undefined") ? "" : filterString;
+	}
+
+	public static Function<Band, BandWrapper> bandWrapperFunction = (Band band) -> (new BandWrapper(band));
 
 }

@@ -1,50 +1,53 @@
 package pl.pilaf.inz.wrapper;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import pl.pilaf.inz.model.Band;
 import pl.pilaf.inz.model.User;
 
 public class BandWrapper implements Serializable {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-    
-    private long id;
-    
-    private String name;
-    
-    private String description;
-    
-    private Date createdDate;
-    
-    private String createdPlace;
-    
-    private List<User> members;
-    
-    private String gengre;
+	private long id;
 
-    private List<Long> users;
-    
-    
+	private String name;
+
+	private String description;
+
+	private Date createdDate;
+
+	private String createdPlace;
+
+	private List<User> members;
+
+	private String gengre;
+
+	private List<UserWrapper> users;
 
 	public BandWrapper() {
 		super();
 	}
-	
+
+	public Function<User, UserWrapper> userFunction = (User band) -> (new UserWrapper(band));
+
 	public BandWrapper(Band band) {
-		this.id=band.getId();
-		this.name=band.getName();
-		this.description=band.getDescription();
-		this.createdDate=band.getCreatedDate();
-		this.createdPlace=band.getCreatedPlace();
-		this.gengre=band.getGengre();
-		this.users= band.getIdList();
+		this.id = band.getId();
+		this.name = band.getName();
+		this.description = band.getDescription();
+		this.createdDate = band.getCreatedDate();
+		this.createdPlace = band.getCreatedPlace();
+		this.gengre = band.getGengre();
+		this.users = (band.getMembers() == null) ? new ArrayList<>()
+				: band.getMembers().stream().map(userFunction).collect(Collectors.toList());
 	}
 
 	public long getId() {
@@ -103,12 +106,12 @@ public class BandWrapper implements Serializable {
 		this.gengre = gengre;
 	}
 
-	public List<Long> getUsers() {
+	public List<UserWrapper> getUsers() {
 		return users;
 	}
 
-	public void setUsers(List<Long> users) {
+	public void setUsers(List<UserWrapper> users) {
 		this.users = users;
 	}
-   
+
 }
