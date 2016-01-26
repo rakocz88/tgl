@@ -3,6 +3,8 @@ package pl.pilaf.inz.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -78,5 +80,24 @@ public class UserController {
 	public UserDetailsWrapper findUserDetails() {
 		return new UserDetailsWrapper(sessionBiz.getUser());
 	}
+
+	public String filterUndefined(String filterString) {
+		return filterString.equals("undefined") ? "" : filterString;
+	}
+
+	@RequestMapping(value = "filter", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<UserWrapper> findUsersFilter(@RequestParam(value = "login", required = false) String login,
+			@RequestParam(value = "firstName", required = false) String firstName,
+			@RequestParam(value = "lastName", required = false) String lastName) {
+
+		login = filterUndefined(login);
+		firstName = filterUndefined(firstName);
+		lastName = filterUndefined(lastName);
+
+		return userRepository.filter(login, firstName, lastName).stream().map(userWrapperFunction)
+				.collect(Collectors.toList());
+	}
+
+	public static Function<User, UserWrapper> userWrapperFunction = (User user) -> (new UserWrapper(user));
 
 }

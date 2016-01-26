@@ -4,101 +4,120 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import pl.pilaf.inz.model.User;
+
 public class UserWrapper implements Serializable {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-    private long id;
+	private long id;
 
-    private String firstName;
+	private String firstName;
 
-    private String lastName;
+	private String lastName;
 
-    private Date birtDate;
+	private Date birtDate;
 
-    private String birthPlace;
+	private String birthPlace;
 
-    private String login;
+	private String login;
 
-    private String password;
+	private String password;
 
-    private String description;
+	private String description;
 
-    private List<Long> bands;
+	private List<Long> bands;
 
-    public long getId() {
-	return id;
-    }
+	public UserWrapper(User user) {
+		super();
+		this.id = user.getId();
+		this.firstName = user.getFirstName();
+		this.lastName = user.getLastName();
+		this.birtDate = user.getBirtDate();
+		this.birthPlace = user.getBirthPlace();
+		this.login = user.getLogin();
+		this.password = user.getPassword();
+		this.description = user.getDescription();
 
-    public void setId(long id) {
-	this.id = id;
-    }
+	}
 
-    public String getFirstName() {
-	return firstName;
-    }
+	public UserWrapper() {
+		super();
+	}
 
-    public void setFirstName(String firstName) {
-	this.firstName = firstName;
-    }
+	public long getId() {
+		return id;
+	}
 
-    public String getLastName() {
-	return lastName;
-    }
+	public void setId(long id) {
+		this.id = id;
+	}
 
-    public void setLastName(String lastName) {
-	this.lastName = lastName;
-    }
+	public String getFirstName() {
+		return firstName;
+	}
 
-    public Date getBirtDate() {
-	return birtDate;
-    }
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
 
-    public void setBirtDate(Date birtDate) {
-	this.birtDate = birtDate;
-    }
+	public String getLastName() {
+		return lastName;
+	}
 
-    public String getBirthPlace() {
-	return birthPlace;
-    }
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
 
-    public void setBirthPlace(String birthPlace) {
-	this.birthPlace = birthPlace;
-    }
+	public Date getBirtDate() {
+		return birtDate;
+	}
 
-    public String getLogin() {
-	return login;
-    }
+	public void setBirtDate(Date birtDate) {
+		this.birtDate = birtDate;
+	}
 
-    public void setLogin(String login) {
-	this.login = login;
-    }
+	public String getBirthPlace() {
+		return birthPlace;
+	}
 
-    public String getPassword() {
-	return password;
-    }
+	public void setBirthPlace(String birthPlace) {
+		this.birthPlace = birthPlace;
+	}
 
-    public void setPassword(String password) {
-	this.password = password;
-    }
+	public String getLogin() {
+		return login;
+	}
 
-    public String getDescription() {
-	return description;
-    }
+	public void setLogin(String login) {
+		this.login = login;
+	}
 
-    public void setDescription(String description) {
-	this.description = description;
-    }
+	public String getPassword() {
+		return password;
+	}
 
-    public List<Long> getBands() {
-	return bands;
-    }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-    public void setBands(List<Long> bands) {
-	this.bands = bands;
-    }
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public List<Long> getBands() {
+		return bands;
+	}
+
+	public void setBands(List<Long> bands) {
+		this.bands = bands;
+	}
 
 }
