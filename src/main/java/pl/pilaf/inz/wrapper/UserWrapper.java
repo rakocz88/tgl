@@ -41,7 +41,6 @@ public class UserWrapper implements Serializable {
 		this.login = user.getLogin();
 		this.password = user.getPassword();
 		this.description = user.getDescription();
-
 	}
 
 	public UserWrapper() {

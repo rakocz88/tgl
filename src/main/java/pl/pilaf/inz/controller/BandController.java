@@ -96,19 +96,13 @@ public class BandController {
 		bandRepository.save(band);
 		user.getBands().add(band);
 		userRepository.save(user);
-		// band.getMembers().add(confirmedUser);
-		// bandRepository.save(band);
-
-		// return new BandWrapper(createdBand);
 	}
 
 	@RequestMapping(value = "filter", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<BandWrapper> filterBands(@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "gengre", required = false) String gengre) {
-
 		name = filterUndefined(name);
 		gengre = filterUndefined(gengre);
-
 		return bandRepository.filter(name, gengre).stream().map(bandWrapperFunction).collect(Collectors.toList());
 	}
 
